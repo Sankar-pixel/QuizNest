@@ -1,0 +1,22 @@
+[
+  {
+    "question": "Which data structure uses LIFO (Last In, First Out) order?",
+    "answers": ["Queue", "Stack", "Linked List", "Binary Tree"],
+    "correctIndex": 1
+  },
+  {
+    "question": "What does 'DOM' stand for in web development?",
+    "answers": ["Document Object Model", "Data Order Map", "Direct Output Mode", "Digital Object Memory"],
+    "correctIndex": 0
+  },
+  {
+    "question": "Which of these is NOT a JavaScript data type?",
+    "answers": ["Boolean", "Float", "Symbol", "Undefined"],
+    "correctIndex": 1
+  },
+  {
+    "question": "What is the time complexity of binary search?",
+    "answers": ["O(n)", "O(n^2)", "O(log n)", "O(1)"],
+    "correctIndex": 2
+  }
+]

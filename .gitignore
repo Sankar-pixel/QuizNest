@@ -1,0 +1,21 @@
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# ASP.NET backend
+aspnet-backend/bin/
+aspnet-backend/obj/
+aspnet-backend/*.db
+aspnet-backend/**/*.db
+
+# Python legacy artifacts
+__pycache__/
+*.pyc
+venv/
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
+*.log
