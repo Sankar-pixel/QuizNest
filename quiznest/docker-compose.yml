@@ -1,0 +1,82 @@
+# docker-compose.yml
+# Brings up the full QuizNest polyglot stack:
+#   mongo              — shared database
+#   backend (Node)     — auth, anti-cheat, XP, achievements, admin API  :4000
+#   analytics (Python) — analytics, hints, adaptive difficulty          :8000
+#   multiplayer (Go)   — real-time WebSocket battle relay               :8080
+#   frontend (nginx)   — static Three.js client                        :8081
+
+version: '3.9'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: quiznest-mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - quiznest-net
+
+  backend:
+    build: ./backend
+    container_name: quiznest-backend
+    environment:
+      MONGO_URI: mongodb://mongo:27017/quiznest
+      JWT_SECRET: ${JWT_SECRET:-replace-with-a-long-random-secret}
+      PORT: 4000
+      ANALYTICS_URL: http://analytics:8000
+      INTERNAL_ADMIN_KEY: ${INTERNAL_ADMIN_KEY:-replace-with-a-shared-secret}
+    ports:
+      - '4000:4000'
+    depends_on:
+      - mongo
+      - analytics
+    networks:
+      - quiznest-net
+
+  analytics:
+    build: ./services/analytics-python
+    container_name: quiznest-analytics
+    environment:
+      MONGO_URI: mongodb://mongo:27017/quiznest
+      INTERNAL_ADMIN_KEY: ${INTERNAL_ADMIN_KEY:-replace-with-a-shared-secret}
+      LLM_PROVIDER: ${LLM_PROVIDER:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-3-5-haiku-20241022}
+    ports:
+      - '8000:8000'
+    depends_on:
+      - mongo
+    networks:
+      - quiznest-net
+
+  multiplayer:
+    build: ./services/multiplayer-go
+    container_name: quiznest-multiplayer
+    ports:
+      - '8080:8080'
+    networks:
+      - quiznest-net
+
+  frontend:
+    build: ./frontend
+    container_name: quiznest-frontend
+    ports:
+      - '8081:80'
+    depends_on:
+      - backend
+      - analytics
+      - multiplayer
+    networks:
+      - quiznest-net
+
+volumes:
+  mongo-data:
+
+networks:
+  quiznest-net:
+    driver: bridge

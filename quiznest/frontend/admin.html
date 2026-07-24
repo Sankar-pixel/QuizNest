@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuizNest — Admin Console</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { display: ['"Orbitron"', 'sans-serif'], body: ['"Rajdhani"', 'sans-serif'] },
+          colors: {
+            'neon-cyan': '#00f6ff', 'neon-magenta': '#ff2fd4', 'neon-green': '#39ff88',
+            'neon-amber': '#ffb400', 'neon-crimson': '#ff2b4e',
+          },
+        },
+      },
+    };
+  </script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    body { background: #05010c; }
+    .glass-panel {
+      background: rgba(10, 6, 24, 0.55);
+      border: 1px solid rgba(0, 246, 255, 0.25);
+      backdrop-filter: blur(14px) saturate(140%);
+    }
+    table { border-collapse: collapse; }
+    td, th { border-bottom: 1px solid rgba(255,255,255,0.08); }
+  </style>
+</head>
+<body class="font-body text-white min-h-screen p-6">
+  <div class="max-w-5xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="font-display text-xl tracking-widest text-neon-cyan">QUIZNEST ADMIN CONSOLE</h1>
+      <a href="./index.html" class="text-xs text-white/50 hover:text-neon-cyan font-display tracking-widest">← BACK TO CITY</a>
+    </div>
+
+    <!-- Sign-in (uses the same JWT the main app issues; must have isAdmin: true) -->
+    <div id="admin-auth" class="glass-panel rounded-xl p-4 mb-6">
+      <p class="font-display text-xs tracking-widest text-neon-magenta mb-2">ADMIN SIGN-IN</p>
+      <div class="flex gap-2 flex-wrap">
+        <input id="admin-username" placeholder="username" class="px-3 py-1.5 rounded bg-white/5 border border-white/10 text-sm outline-none focus:border-neon-cyan" />
+        <input id="admin-password" type="password" placeholder="password" class="px-3 py-1.5 rounded bg-white/5 border border-white/10 text-sm outline-none focus:border-neon-cyan" />
+        <button id="admin-login-btn" class="px-4 py-1.5 rounded bg-neon-cyan/20 border border-neon-cyan/50 text-xs hover:bg-neon-cyan/30">Sign In</button>
+      </div>
+      <p id="admin-auth-status" class="text-[11px] text-white/40 mt-2"></p>
+    </div>
+
+    <!-- Question management -->
+    <div class="glass-panel rounded-xl p-4 mb-6">
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <p class="font-display text-xs tracking-widest text-neon-cyan">QUESTION BANK</p>
+        <div class="flex gap-2">
+          <select id="generate-category" class="px-2 py-1.5 rounded bg-white/5 border border-white/10 text-xs">
+            <option value="programming">Programming</option>
+            <option value="science">Science</option>
+            <option value="mathematics">Mathematics</option>
+            <option value="history">History</option>
+            <option value="geography">Geography</option>
+            <option value="entertainment">Entertainment</option>
+          </select>
+          <input id="generate-count" type="number" value="10" min="1" max="30" class="w-16 px-2 py-1.5 rounded bg-white/5 border border-white/10 text-xs" />
+          <button id="generate-questions-btn" class="text-xs px-3 py-1.5 rounded bg-neon-magenta/20 border border-neon-magenta/50 text-neon-magenta hover:bg-neon-magenta/30">
+            ✨ Generate with AI
+          </button>
+          <button id="new-question-btn" class="text-xs px-3 py-1.5 rounded bg-neon-green/20 border border-neon-green/50 text-neon-green hover:bg-neon-green/30">+ New Question</button>
+        </div>
+      </div>
+      <p id="generate-status" class="text-[11px] text-white/40 mb-3"></p>
+
+      <div id="question-form-wrapper" class="hidden mb-4 p-3 rounded-lg bg-white/5 border border-white/10">
+        <input type="hidden" id="edit-question-id" />
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <select id="q-category" class="px-2 py-1.5 rounded bg-white/5 border border-white/10 text-sm">
+            <option value="programming">Programming</option>
+            <option value="science">Science</option>
+            <option value="mathematics">Mathematics</option>
+            <option value="history">History</option>
+            <option value="geography">Geography</option>
+            <option value="entertainment">Entertainment</option>
+          </select>
+          <select id="q-difficulty" class="px-2 py-1.5 rounded bg-white/5 border border-white/10 text-sm">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+        <input id="q-text" placeholder="Question text" class="w-full mb-2 px-2 py-1.5 rounded bg-white/5 border border-white/10 text-sm" />
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <input id="q-opt-0" placeholder="Option A" class="px-2 py-1.5 rounded bg-white/5 border border-white/10 text-sm" />
+          <input id="q-opt-1" placeholder="Option B" class="px-2 py-1.5 rounded bg-white/5 border border-white/10 text-sm" />
+          <input id="q-opt-2" placeholder="Option C" class="px-2 py-1.5 rounded bg-white/5 border border-white/10 text-sm" />
+          <input id="q-opt-3" placeholder="Option D" class="px-2 py-1.5 rounded bg-white/5 border border-white/10 text-sm" />
+        </div>
+        <div class="flex items-center gap-2 mb-3">
+          <label class="text-xs text-white/50">Correct option index (0-3):</label>
+          <input id="q-correct-index" type="number" min="0" max="3" class="w-16 px-2 py-1 rounded bg-white/5 border border-white/10 text-sm" />
+        </div>
+        <div class="flex gap-2">
+          <button id="save-question-btn" class="text-xs px-4 py-1.5 rounded bg-neon-cyan/20 border border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/30">Save</button>
+          <button id="cancel-question-btn" class="text-xs px-4 py-1.5 rounded bg-white/5 border border-white/10 text-white/60 hover:text-white">Cancel</button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="text-white/40 text-left">
+              <th class="py-2 pr-3">Category</th>
+              <th class="py-2 pr-3">Question</th>
+              <th class="py-2 pr-3">Correct</th>
+              <th class="py-2 pr-3">Difficulty</th>
+              <th class="py-2 pr-3"></th>
+            </tr>
+          </thead>
+          <tbody id="questions-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- User management -->
+    <div class="glass-panel rounded-xl p-4">
+      <p class="font-display text-xs tracking-widest text-neon-cyan mb-3">USERS</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead>
+            <tr class="text-white/40 text-left">
+              <th class="py-2 pr-3">Username</th>
+              <th class="py-2 pr-3">XP</th>
+              <th class="py-2 pr-3">Level</th>
+              <th class="py-2 pr-3">Badges</th>
+              <th class="py-2 pr-3">Admin</th>
+              <th class="py-2 pr-3"></th>
+            </tr>
+          </thead>
+          <tbody id="users-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.QUIZNEST_API_BASE = 'http://localhost:4000/api';
+  </script>
+  <script type="module" src="./src/ui/AdminUI.js"></script>
+</body>
+</html>
